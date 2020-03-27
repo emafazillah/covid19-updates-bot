@@ -16,5 +16,9 @@
   "bugs": {
     "url": "https://github.com/emafazillah/covid19-updates-bot/issues"
   },
-  "homepage": "https://github.com/emafazillah/covid19-updates-bot#readme"
+  "homepage": "https://github.com/emafazillah/covid19-updates-bot#readme",
+  "dependencies": {
+    "request": "^2.88.2",
+    "scramjet": "^4.28.3"
+  }
 }
