@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/emafazillah/covid19-updates-bot#readme",
   "dependencies": {
+    "dotenv": "^8.2.0",
     "node-telegram-bot-api": "^0.40.0",
     "request": "^2.88.2",
     "scramjet": "^4.28.3"
