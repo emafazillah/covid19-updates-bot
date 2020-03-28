@@ -1,0 +1,21 @@
+name: 'GitHub Action for COVID-19 Updates'
+
+on:
+  push:
+  schedule:
+    - cron: '*/15 * * * *'
+
+jobs:
+  bot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: 'Install node'
+        uses: actions/setup-node@v1
+      - name: 'Install NPM dependencies'
+        run: npm install
+      - name: 'Run code'
+        run: node index.js
+        env:
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
