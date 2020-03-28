@@ -3,7 +3,7 @@ name: 'GitHub Action for COVID-19 Updates'
 on:
   push:
   schedule:
-    - cron: '*/10 * * * *'
+    - cron: '0 12 * * *'
 
 jobs:
   bot:
