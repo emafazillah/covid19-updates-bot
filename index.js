@@ -1,6 +1,5 @@
 require('dotenv').config();
 const core = require('@actions/core');
-const github = require('@actions/github');
 const { StringStream } = require('scramjet');
 const request = require('request');
 const Telegram = require('node-telegram-bot-api');
@@ -55,7 +54,6 @@ try {
             });
             
             const message = generateMessage(COUNTRY, totalConfirmed, totalDeaths, totalRecovered, totalActive);
-            // console.log('message: ', message);
             bot.sendMessage(process.env.TELEGRAM_CHAT_ID, message);
         });
 
