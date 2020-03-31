@@ -28,15 +28,45 @@ try {
         Recovered: ${object.Recovered}. 
         Active: ${object.Active}.`;
     
-    // TODO: Get country region from configuration
-    request.get(URL + formattedYesterdayDate + CSV)
-        .pipe(new StringStream())
-        .CSVParse({ skipEmptyLines: true, header: true })
-        .filter(object => (object.Country_Region === 'Malaysia'))
-        .map(async(object) => {
-            const message = generateMessage(object);
-            bot.sendMessage(process.env.TELEGRAM_CHAT_ID, message);
+    // request.get(URL + formattedYesterdayDate + CSV)
+    //     .pipe(new StringStream())
+    //     .CSVParse({ skipEmptyLines: true, header: true })
+    //     .filter(object => (object.Country_Region === 'Malaysia'))
+    //     .map(async(object) => {
+    //         const message = generateMessage(object);
+    //         bot.sendMessage(process.env.TELEGRAM_CHAT_ID, message);
+    //     });
+
+    async function getResult(country) {
+        let arr = [];
+        await request
+                .get(URL + formattedYesterdayDate + CSV)
+                .pipe(new StringStream())
+                .CSVParse({ skipEmptyLines: true, header: true })
+                .filter(data => (data.Country_Region === country))
+                .consume(data => arr.push(data));
+        return arr;
+    }
+    
+    getResult('Australia')
+        .then(result => {
+            // console.log('result: ', result);
+            let totalConfirmed = 0;
+            let totalDeaths = 0;
+            let totalRecovered = 0;
+            let totalActive = 0;
+            result.forEach(element => {
+                totalConfirmed = totalConfirmed + parseInt(element.Confirmed);
+                totalDeaths = totalDeaths + parseInt(element.Deaths);
+                totalRecovered = totalRecovered + parseInt(element.Recovered);
+                totalActive = totalActive + parseInt(element.Active);
+            });
+            // console.log('totalConfirmed: ', totalConfirmed);
+            // console.log('totalDeaths: ', totalDeaths);
+            // console.log('totalRecovered: ', totalRecovered);
+            // console.log('totalActive: ', totalActive);
         });
+
 } catch (error) {
     core.setFailed(error.message);
 }
