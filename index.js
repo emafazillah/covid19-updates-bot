@@ -6,8 +6,9 @@ const request = require('request');
 const Telegram = require('node-telegram-bot-api');
 const bot = new Telegram(process.env.TELEGRAM_TOKEN);
 
-const URL = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/';
-const CSV = '.csv';
+const URL = process.env.URL.toString();
+const CSV = process.env.CSV.toString();
+const COUNTRY = process.env.COUNTRY.toString();
 
 try {
     const today = new Date();
@@ -22,7 +23,7 @@ try {
     }
     
     const generateMessage = (country, totalConfirmed, totalDeaths, totalRecovered, totalActive) => 
-        `${country} COVID-19 Updates as ${yesterday.toDateString()}; 
+        `${country} COVID-19 Update as ${yesterday.toDateString()}; 
         Total Confirmed: ${totalConfirmed}. 
         Total Deaths: ${totalDeaths}. 
         Total Recovered: ${totalRecovered}. 
@@ -39,7 +40,7 @@ try {
         return arr;
     }
     
-    getResult(process.env.COUNTRY)
+    getResult(COUNTRY)
         .then(result => {
             let totalConfirmed = 0;
             let totalDeaths = 0;
@@ -53,9 +54,9 @@ try {
                 totalActive = totalActive + parseInt(element.Active);
             });
             
-            const message = generateMessage(process.env.COUNTRY, totalConfirmed, totalDeaths, totalRecovered, totalActive);
-            console.log('message: ', message);
-            // bot.sendMessage(process.env.COUNTRY, message);
+            const message = generateMessage(COUNTRY, totalConfirmed, totalDeaths, totalRecovered, totalActive);
+            // console.log('message: ', message);
+            bot.sendMessage(process.env.TELEGRAM_CHAT_ID, message);
         });
 
 } catch (error) {
