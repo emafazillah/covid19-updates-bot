@@ -8,6 +8,7 @@ const bot = new Telegram(process.env.TELEGRAM_TOKEN);
 
 const URL = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/';
 const CSV = '.csv';
+const COUNTRY = 'Australia';
 
 try {
     const today = new Date();
@@ -21,12 +22,12 @@ try {
         formattedYesterdayDate = getMonth + '-' + yesterday.getDate() + '-' + yesterday.getFullYear();
     }
     
-    const generateMessage = object => 
-        `Malaysia COVID-19 Updates as ${yesterday.toDateString()}; 
-        Confirmed: ${object.Confirmed}. 
-        Deaths: ${object.Deaths}. 
-        Recovered: ${object.Recovered}. 
-        Active: ${object.Active}.`;
+    const generateMessage = (country, totalConfirmed, totalDeaths, totalRecovered, totalActive) => 
+        `${country} COVID-19 Updates as ${yesterday.toDateString()}; 
+        Total Confirmed: ${totalConfirmed}. 
+        Total Deaths: ${totalDeaths}. 
+        Total Recovered: ${totalRecovered}. 
+        Total Active: ${totalActive}.`;
     
     // request.get(URL + formattedYesterdayDate + CSV)
     //     .pipe(new StringStream())
@@ -48,23 +49,23 @@ try {
         return arr;
     }
     
-    getResult('Australia')
+    getResult(COUNTRY)
         .then(result => {
-            // console.log('result: ', result);
             let totalConfirmed = 0;
             let totalDeaths = 0;
             let totalRecovered = 0;
             let totalActive = 0;
+
             result.forEach(element => {
                 totalConfirmed = totalConfirmed + parseInt(element.Confirmed);
                 totalDeaths = totalDeaths + parseInt(element.Deaths);
                 totalRecovered = totalRecovered + parseInt(element.Recovered);
                 totalActive = totalActive + parseInt(element.Active);
             });
-            // console.log('totalConfirmed: ', totalConfirmed);
-            // console.log('totalDeaths: ', totalDeaths);
-            // console.log('totalRecovered: ', totalRecovered);
-            // console.log('totalActive: ', totalActive);
+            
+            const message = generateMessage(COUNTRY, totalConfirmed, totalDeaths, totalRecovered, totalActive);
+            console.log('message: ', message);
+            // bot.sendMessage(process.env.TELEGRAM_CHAT_ID, message);            
         });
 
 } catch (error) {
