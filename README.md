@@ -3,31 +3,20 @@
 Get Covid-19 Update by country. Data from 2019 Novel Coronavirus COVID-19 (2019-nCoV) Data Repository by Johns Hopkins CSSE, https://github.com/CSSEGISandData/COVID-19. Update will be sent via Telegram.
 
 ## Example Usage
+Update `send-message.yml` as below;
 ```YAML
-on:
-  push:
-  schedule:
+...
     - cron: '0 12 * * *'
 
-jobs:
-  bot:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-      - name: 'Install node'
-        uses: actions/setup-node@v1
-      - name: 'Install NPM dependencies'
-        run: npm install
-      - name: 'Run code'
-        run: node index.js
+...
         env:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-          URL: 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/'
-          CSV: '.csv'
+...          
           COUNTRY: 'Malaysia'
 ```
-## Country
+
+## List of Countries
 Country |
 :---|
 Afghanistan
