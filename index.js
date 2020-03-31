@@ -8,7 +8,6 @@ const bot = new Telegram(process.env.TELEGRAM_TOKEN);
 
 const URL = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/';
 const CSV = '.csv';
-const COUNTRY = 'Australia';
 
 try {
     const today = new Date();
@@ -28,15 +27,6 @@ try {
         Total Deaths: ${totalDeaths}. 
         Total Recovered: ${totalRecovered}. 
         Total Active: ${totalActive}.`;
-    
-    // request.get(URL + formattedYesterdayDate + CSV)
-    //     .pipe(new StringStream())
-    //     .CSVParse({ skipEmptyLines: true, header: true })
-    //     .filter(object => (object.Country_Region === 'Malaysia'))
-    //     .map(async(object) => {
-    //         const message = generateMessage(object);
-    //         bot.sendMessage(process.env.TELEGRAM_CHAT_ID, message);
-    //     });
 
     async function getResult(country) {
         let arr = [];
@@ -49,7 +39,7 @@ try {
         return arr;
     }
     
-    getResult(COUNTRY)
+    getResult(process.env.COUNTRY)
         .then(result => {
             let totalConfirmed = 0;
             let totalDeaths = 0;
@@ -63,9 +53,9 @@ try {
                 totalActive = totalActive + parseInt(element.Active);
             });
             
-            const message = generateMessage(COUNTRY, totalConfirmed, totalDeaths, totalRecovered, totalActive);
+            const message = generateMessage(process.env.COUNTRY, totalConfirmed, totalDeaths, totalRecovered, totalActive);
             console.log('message: ', message);
-            // bot.sendMessage(process.env.TELEGRAM_CHAT_ID, message);            
+            // bot.sendMessage(process.env.COUNTRY, message);
         });
 
 } catch (error) {
