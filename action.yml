@@ -1,5 +1,5 @@
 name: 'GitHub Action for COVID-19 Updates'
-description: 'Get Malaysian Covid-19 Updates. Data from 2019 Novel Coronavirus COVID-19 (2019-nCoV) Data Repository by Johns Hopkins CSSE.'
+description: 'Get Covid-19 Update by country. Data from 2019 Novel Coronavirus COVID-19 (2019-nCoV) Data Repository by Johns Hopkins CSSE.'
 inputs:
   who-to-greet:  # id of input
     description: 'Yesterday date'
@@ -7,7 +7,7 @@ inputs:
     default: 'Yesterday date'
 outputs:
   time: # id of output
-    description: 'COVID-19 Updates on confirmed, deaths, recovered and active.'
+    description: 'COVID-19 Update on confirmed, deaths, recovered and active.'
 runs:
   using: 'node12'
   main: 'index.js'

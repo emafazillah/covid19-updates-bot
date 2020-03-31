@@ -1,4 +1,4 @@
-name: 'GitHub Action for COVID-19 Updates'
+name: 'GitHub Action for COVID-19 Update'
 
 on:
   push:
@@ -19,3 +19,6 @@ jobs:
         env:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          URL: 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/'
+          CSV: '.csv'
+          COUNTRY: 'Malaysia'
