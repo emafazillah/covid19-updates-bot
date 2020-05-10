@@ -5,9 +5,9 @@ const request = require('request');
 const Telegram = require('node-telegram-bot-api');
 const bot = new Telegram(process.env.TELEGRAM_TOKEN);
 
-const URL = process.env.URL.toString();
-const CSV = process.env.CSV.toString();
-const COUNTRY = process.env.COUNTRY.toString();
+const URL = process.env.URL;
+const CSV = process.env.CSV;
+const COUNTRY = process.env.COUNTRY;
 
 try {
     const today = new Date();
@@ -33,7 +33,7 @@ try {
         await request
                 .get(URL + formattedYesterdayDate + CSV)
                 .pipe(new StringStream())
-                .CSVParse({ skipEmptyLines: true, header: true })
+                .CSVParse({ delimiter: ',', skipEmptyLines: true, header: true })
                 .filter(data => (data.Country_Region === country))
                 .consume(data => arr.push(data));
         return arr;
