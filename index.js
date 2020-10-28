@@ -1,9 +1,16 @@
 require('dotenv').config();
-const core = require('@actions/core');
-const { StringStream } = require('scramjet');
-const request = require('request');
-const Telegram = require('node-telegram-bot-api');
+import { setFailed } from '@actions/core';
+import { StringStream } from 'scramjet';
+import { get } from 'request';
+import Telegram from 'node-telegram-bot-api';
 const bot = new Telegram(process.env.TELEGRAM_TOKEN);
+import mysql from 'mysql';
+const connection = mysql.createConnection({
+    host: 'localhost',
+    user: '',
+    password: '',
+    database: ''
+});
 
 const URL = process.env.URL;
 const CSV = process.env.CSV;
@@ -30,8 +37,7 @@ try {
 
     async function getResult(country) {
         let arr = [];
-        await request
-                .get(URL + formattedYesterdayDate + CSV)
+        await get(URL + formattedYesterdayDate + CSV)
                 .pipe(new StringStream())
                 .CSVParse({ delimiter: ',', skipEmptyLines: true, header: true })
                 .filter(data => (data.Country_Region === country))
@@ -58,5 +64,5 @@ try {
         });
 
 } catch (error) {
-    core.setFailed(error.message);
+    setFailed(error.message);
 }
