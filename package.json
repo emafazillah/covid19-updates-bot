@@ -20,8 +20,8 @@
   "dependencies": {
     "@actions/core": "^1.2.6",
     "dotenv": "^8.2.0",
-    "node-telegram-bot-api": "^0.40.0",
+    "node-telegram-bot-api": "^0.50.0",
     "request": "^2.88.2",
-    "scramjet": "^4.29.0"
+    "scramjet": "^4.35.2"
   }
 }
