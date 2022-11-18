@@ -4,7 +4,7 @@
   "description": "Covid-19 Updates Bot",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -23,5 +23,11 @@
     "node-telegram-bot-api": "^0.50.0",
     "request": "^2.88.2",
     "scramjet": "^4.35.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.20.2",
+    "@babel/preset-env": "^7.20.2",
+    "babel-jest": "^29.3.1",
+    "jest": "^29.3.1"
   }
 }
