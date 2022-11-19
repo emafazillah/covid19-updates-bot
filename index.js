@@ -9,6 +9,8 @@ const country = process.env.COUNTRY;
 const csv = process.env.CSV;
 const url = process.env.URL;
 
+sendCovid19Message();
+
 export function sendCovid19Message() {
     try {
         const message = getCovid19Message(country, csv, url);
