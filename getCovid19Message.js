@@ -2,97 +2,82 @@ import { setFailed } from '@actions/core';
 import { StringStream } from 'scramjet';
 import { get } from 'request';
 
+const today = new Date();
+
 export default function getCovid19Message(country, csv, url) {
     try {
-        const today = new Date();
         const yesterday = new Date(today);
-        const dayBeforeYesterday = new Date(today);
         yesterday.setDate(yesterday.getDate() - 1);
+        const formattedYesterdayDate = getFormattedDate(yesterday);
+
+        const dayBeforeYesterday = new Date(today);
         dayBeforeYesterday.setDate(dayBeforeYesterday.getDate() - 2);
-        let formattedYesterdayDate = '';
-        let formattedDayBeforeYesterdayDate = '';
-        const getMonth = yesterday.getMonth() + 1;
-        const getMonthBefore = dayBeforeYesterday.getMonth() + 1;
-        if (getMonth < 10 || getMonthBefore < 10) {
-            formattedYesterdayDate = '0' + getMonth + '-' + yesterday.getDate() + '-' + yesterday.getFullYear();
-            formattedDayBeforeYesterdayDate = '0' + getMonthBefore + '-' + dayBeforeYesterday.getDate() + '-' + dayBeforeYesterday.getFullYear();
-        } else {
-            formattedYesterdayDate = getMonth + '-' + yesterday.getDate() + '-' + yesterday.getFullYear();
-            formattedDayBeforeYesterdayDate = getMonthBefore + '-' + dayBeforeYesterday.getDate() + '-' + dayBeforeYesterday.getFullYear();
-        }
+        const formattedDayBeforeYesterdayDate = getFormattedDate(dayBeforeYesterday);
 
-        let message = '';
-
-        getResult(country, csv, url, formattedYesterdayDate, formattedDayBeforeYesterdayDate)
-            .then(result => {
-                let newcase = 0;
-                let deaths = 0;
-                let recovered = 0;
-                let totalConfirmed = 0;
-                let totalDeaths = 0;
-                let totalRecovered = 0;
-                let totalActive = 0;
-                let curr = '';
-                let prev = '';
-
-                result.forEach(element => {
-                    if (curr === '') {
-                        totalConfirmed = parseInt(element.Confirmed);
-                        totalDeaths = parseInt(element.Deaths);
-                        totalRecovered = parseInt(element.Recovered);
-                        totalActive = parseInt(element.Active);
-                    } else {
-                        prev = curr;
-                    }
-
-                    curr = element.Last_Update.replace(' ', 'T') + 'Z';
-                    newcase = Math.abs(newcase - parseInt(element.Confirmed));
-                    deaths = Math.abs(deaths - parseInt(element.Deaths));
-                    recovered = Math.abs(recovered - parseInt(element.Recovered));
-                    if (curr !== '' && prev !== '') {
-                        if (new Date(curr) > new Date(prev)) {
-                            totalConfirmed = parseInt(element.Confirmed);
-                            totalDeaths = parseInt(element.Deaths);
-                            totalRecovered = parseInt(element.Recovered);
-                            totalActive = parseInt(element.Active);
-                        }
-                    }
-                });
-
-                message = generateMessage(country, newcase, deaths, recovered, totalConfirmed, totalDeaths, totalRecovered, totalActive, yesterday);
-            });
-
-        return message;
+        return generateMessage(country, csv, url, formattedYesterdayDate, formattedDayBeforeYesterdayDate, yesterday);
     } catch (error) {
         setFailed(error.message);
     }
 }
 
-function generateMessage(country, newcase, deaths, recovered, totalConfirmed, totalDeaths, totalRecovered, totalActive, todayMinusOne) {
-    return `${country} COVID-19 Update as ${todayMinusOne.toDateString()};
-        New Case: ${newcase}.
-        Deaths: ${deaths}.
-        Recovered: ${recovered}.
-        Total Confirmed: ${totalConfirmed}.
-        Total Deaths: ${totalDeaths}.
-        Total Recovered: ${totalRecovered}.
-        Total Active: ${totalActive}.`;
+async function generateMessage(country, csv, url, formattedYesterdayDate, formattedDayBeforeYesterdayDate, todayMinusOne) {
+    const resultYesterday = getResult(country, csv, url, formattedYesterdayDate);
+    const resultDayBeforeYesterday = getResult(country, csv, url, formattedDayBeforeYesterdayDate);
+
+    let message = await Promise.all([resultYesterday, resultDayBeforeYesterday]).then((values) => {
+        const totalYesterdayConfirmed = countTotal(values[0], 'Confirmed');
+        const totalYesterdayDeaths = countTotal(values[0], 'Deaths');
+        const totalYesterdayRecovered = countTotal(values[0], 'Recovered');
+        const totalYesterdayActive = countTotal(values[0], 'Active');
+
+        const totalDayBeforeYesterdayConfirmed = countTotal(values[1], 'Confirmed');
+        const totalDayBeforeYesterdayDeaths = countTotal(values[1], 'Deaths');
+        const totalDayBeforeYesterdayRecovered = countTotal(values[1], 'Recovered');
+
+        const msg = `${country} COVID-19 Update as ${todayMinusOne.toDateString()};
+        New Case: ${Math.abs(parseInt(totalYesterdayConfirmed) - parseInt(totalDayBeforeYesterdayConfirmed))}.
+        Deaths: ${Math.abs(parseInt(totalYesterdayDeaths) - parseInt(totalDayBeforeYesterdayDeaths))}.
+        Recovered: ${Math.abs(parseInt(totalYesterdayRecovered) - parseInt(totalDayBeforeYesterdayRecovered))}.
+        Total Confirmed: ${totalYesterdayConfirmed}.
+        Total Deaths: ${totalYesterdayDeaths}.
+        Total Recovered: ${totalYesterdayRecovered}.
+        Total Active: ${totalYesterdayActive}.`;
+
+        return msg;
+    });
+
+    return message;
 }
 
-async function getResult(country, csv, url, formattedYesterdayDate, formattedDayBeforeYesterdayDate) {
+async function getResult(country, csv, url, formattedDate) {
     let arr = [];
-
-    await get(url + formattedYesterdayDate + csv)
+    await get(url + formattedDate + csv)
         .pipe(new StringStream())
         .CSVParse({ delimiter: ',', skipEmptyLines: true, header: true })
         .filter(data => (data.Country_Region === country))
         .consume(data => arr.push(data));
-
-    await get(url + formattedDayBeforeYesterdayDate + csv)
-        .pipe(new StringStream())
-        .CSVParse({ delimiter: ',', skipEmptyLines: true, header: true })
-        .filter(data => (data.Country_Region === country))
-        .consume(data => arr.push(data));
-
     return arr;
+}
+
+function getFormattedDate(dateVal) {
+    const monthVal = dateVal.getMonth() + 1;
+    let formattedDateVal = monthVal + '-' + dateVal.getDate() + '-' + dateVal.getFullYear();
+    if (monthVal < 10) {
+        formattedDateVal = '0' + formattedDateVal;
+    }
+    return formattedDateVal;
+}
+
+function countTotal(arrayVal, propertyVal) {
+    let sum = 0;
+    arrayVal.forEach(element => {
+        for (let property in element) {
+            if (property === propertyVal) {
+                if (element[property] !== '' && element[property] !== null && element[property] !== undefined) {
+                    sum += parseInt(element[property]);
+                }
+            }
+        }
+    });
+    return sum;
 }

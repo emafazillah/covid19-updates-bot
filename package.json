@@ -4,7 +4,9 @@
   "description": "Covid-19 Updates Bot",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "build": "babel index.js getCovid19Message.js -d dist",
+    "start": "npm run build && node dist/index.js"
   },
   "repository": {
     "type": "git",
@@ -18,11 +20,13 @@
   },
   "homepage": "https://github.com/emafazillah/covid19-updates-bot#readme",
   "dependencies": {
-    "@actions/core": "^1.9.1",
-    "dotenv": "^8.2.0",
-    "node-telegram-bot-api": "^0.50.0",
+    "@actions/core": "^1.10.0",
+    "@babel/cli": "^7.19.3",
+    "@babel/node": "^7.20.2",
+    "dotenv": "^16.0.3",
+    "node-telegram-bot-api": "^0.60.0",
     "request": "^2.88.2",
-    "scramjet": "^4.35.2"
+    "scramjet": "^4.36.9"
   },
   "devDependencies": {
     "@babel/core": "^7.20.2",
