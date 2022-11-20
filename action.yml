@@ -12,5 +12,5 @@ outputs:
   time: # id of output
     description: 'COVID-19 Update on confirmed, deaths, recovered and active.'
 runs:
-  using: 'node12'
+  using: 'node16'
   main: 'index.js'
